@@ -1024,8 +1024,11 @@ def call_provider(provider, model, client_api, body):
     headers.update(auth_headers(provider["auth"], provider["key"]))
     wire = provider["wire"]
     if wire == "openai":
-        upstream = dict(body)
-        upstream["model"] = model
+        if client_api == "anthropic":
+            upstream = anthropic_to_openai(body, model)
+        else:
+            upstream = dict(body)
+            upstream["model"] = model
         upstream["stream"] = False
         upstream.pop("stream_options", None)
         status, payload, _raw = _http_json(
